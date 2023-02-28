@@ -41,6 +41,7 @@
             MERGE (n{{ label1 }} { uuid: {{ uuid }} })
             SET n{{ label2 }}
             SET n = {
+            uuid: {{ uuid }},
             name: {{ name }},
             sameAs: {{ sameAs }},
             someDate: date({{ someDate }}),
