@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph xmlns="https://strehle.de/xmlns/xml-to-cypher">
+    <!-- Example 1): Provide <default><text>, will be used by all <statement>s without their own <text> -->
+    <default>
+        <text>
+            CREATE (n:Person { name: {{ name }}, uuid: {{ uuid }} }) RETURN n.uuid
+        </text>
+    </default>
+    <!-- First statement to use the default text -->
+    <statement>
+        <parameters>
+            <parameter name="uuid">abcd</parameter>
+            <parameter name="name">Tom</parameter>
+        </parameters>
+        <!-- Output:
+        CREATE (n:Person { name: "Tom", uuid: "abcd" }) RETURN n.uuid;
+        -->
+    </statement>
+    <!-- Second statement to use the default text -->
+    <statement>
+        <parameters>
+            <parameter name="uuid">efgh</parameter>
+            <parameter name="name">Carl</parameter>
+        </parameters>
+        <!-- Output:
+        CREATE (n:Person { name: "Carl", uuid: "efgh" }) RETURN n.uuid;
+        -->
+    </statement>
+    <!-- Example 2): <text> only, no <parameters> -->
+    <statement>
+        <text>
+            CREATE (n:Person {name: "John", uuid: "ijkl"}) RETURN id(n)
+        </text>
+        <!-- Output:
+        CREATE (n:Person {name: "John", uuid: "ijkl"}) RETURN id(n);
+        -->
+    </statement>
+    <!-- Example 3): Complex <text>, <labels>, <parameters> with lists and types -->
+    <statement>
+        <text>
+            MERGE (n{{ label1 }} { uuid: {{ uuid }} })
+            SET n{{ label2 }}
+            SET n = {
+            name: {{ name }},
+            sameAs: {{ sameAs }},
+            someDate: date({{ someDate }}),
+            someDateTime: datetime({{ someDateTime }}),
+            someTime: time({{ someTime }}),
+            someInteger: {{ someInteger }},
+            someFloat: {{ someFloat }},
+            someBoolean: {{ someBoolean }},
+            someIntegers: {{ someIntegers }},
+            someMultilineText: {{ someMultilineText }}
+            {% if something %}, something: {{ something }}{% endif %}
+            }
+            RETURN n.uuid
+        </text>
+        <labels>
+            <label name="label1">Person</label>
+            <label name="label2">B</label>
+            <label name="label2">C</label>
+        </labels>
+        <parameters>
+            <parameter name="uuid">5e02f650-7429-4dab-b57b-844bddce068b</parameter>
+            <parameter name="name" type="string">Tim</parameter>
+            <parameter name="sameAs" type="string">
+                <value>https://www.strehle.de/tim/</value>
+                <value>https://twitter.com/tistre</value>
+            </parameter>
+            <parameter name="someDate">1970-01-01</parameter>
+            <parameter name="someDateTime">2021-12-24T12:24:03+01:00</parameter>
+            <parameter name="someTime">2021-12-24T12:24:03+01:00</parameter>
+            <parameter name="someInteger" type="integer">49</parameter>
+            <parameter name="someFloat" type="float">36.7</parameter>
+            <parameter name="someBoolean" type="boolean">1</parameter>
+            <parameter name="isSomeoneElse" type="boolean">0</parameter>
+            <parameter name="someIntegers" type="integer">
+                <value>11</value>
+                <value>13</value>
+            </parameter>
+            <parameter name="someMultilineText">Doesn't run on 64bit Windows 👽
+                See the file C:\WIN32\WIN.EXE
+            </parameter>
+        </parameters>
+        <!-- Output:
+        MERGE (n:`Person` { uuid: "5e02f650-7429-4dab-b57b-844bddce068b" })
+            SET n:`B`:`C`
+            SET n = {
+            name: "Tim",
+            sameAs: ["https://www.strehle.de/tim/", "https://twitter.com/tistre"],
+            someDate: date("1970-01-01"),
+            someDateTime: datetime("2021-12-24T12:24:03+01:00"),
+            someTime: time("2021-12-24T12:24:03+01:00"),
+            someInteger: 49,
+            someFloat: 36.7,
+            someBoolean: true,
+            someIntegers: [11, 13],
+            someMultilineText: "Doesn't run on 64bit Windows 👽\n                See the file C:\\WIN32\\WIN.EXE"
+                        }
+            RETURN n.uuid;
+        -->
+    </statement>
+</graph>
